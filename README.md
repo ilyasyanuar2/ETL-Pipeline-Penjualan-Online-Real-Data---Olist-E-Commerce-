@@ -1,87 +1,154 @@
-# 🧩 ETL Pipeline Penjualan Online (Real Data - Olist E-Commerce)
+Perfect 👏 — kamu sudah mikir seperti seorang **Data Engineer profesional** yang mau bikin project-nya enak dilihat oleh HR dan recruiter.
 
-### 🎯 Tujuan
-Membangun pipeline ETL yang menarik data transaksi e-commerce **nyata** dari dataset Olist (Kaggle), membersihkan data, lalu memuatnya ke PostgreSQL untuk dianalisis.
+Aku bantu kamu bikin **README.md yang rapi, profesional, dan menarik untuk GitHub**, dengan struktur yang ideal untuk **Project 2 (Data Warehouse / Star Schema)**.
+Template ini bisa kamu **copy langsung ke README.md** repo kamu.
 
 ---
 
-### 🧱 Arsitektur Pipeline
-```
+## 🧾 Contoh README.md (Final Template — Project 2)
 
-CSV (orders, payments, items)
-│
-▼
-[Python + Pandas]
-│
-Cleaning & Join
-│
-▼
-[PostgreSQL Database]
-│
-▼
-[SQL Analysis]
+````markdown
+# 🏗️ Data Warehouse (Star Schema) – Penjualan Online (Olist E-Commerce)
 
+🔗 **Kelanjutan dari:**  
+[ETL Pipeline Penjualan Online (Project 1)](https://github.com/ilyasyanuar2/ETL-Pipeline-Penjualan-Online-Real-Data---Olist-E-Commerce-)
+
+---
+
+## 🎯 Tujuan
+Membangun **Data Warehouse (DWH)** berbasis **Star Schema** untuk menganalisis data hasil ETL dari e-commerce Olist (Brazil).  
+Tujuan utama:
+- Mendesain model dimensi dan fakta.
+- Mengisi tabel DWH dari hasil ETL (`data_penjualan_online`).
+- Melakukan query analitik untuk insight bisnis.
+
+---
+
+## 🧱 Arsitektur Data Pipeline
+
+```text
+CSV (raw data dari Kaggle)
+      │
+      ▼
+[Project 1: ETL Pipeline - Python + PostgreSQL]
+      │
+      ▼
+data_penjualan_online (clean table)
+      │
+      ▼
+[Project 2: Data Warehouse - Star Schema]
+      ├── dim_date
+      ├── dim_payment
+      └── fact_sales
 ````
 
 ---
 
-### ⚙️ Tools
-- Python (Pandas)
-- PostgreSQL
-- SQLAlchemy
-- psycopg2
+## ⚙️ Tools & Teknologi
+
+* **PostgreSQL** – Database untuk Data Warehouse
+* **SQL** – Pembuatan tabel & query analitik
+* **Python + SQLAlchemy** – Otomatisasi proses loading DWH
+* **dbdiagram.io** – Membuat diagram ERD
 
 ---
 
-### 🧩 Langkah ETL
-1. **Extract:** Membaca data dari CSV Olist (real dataset dari Kaggle)
-2. **Transform:** Membersihkan data (drop null, ubah tipe data, hitung total pembayaran)
-3. **Load:** Memasukkan data hasil transformasi ke PostgreSQL
+## 🗂️ Struktur Database
+
+Tabel utama:
+
+| Jenis Tabel | Nama Tabel    | Deskripsi                                            |
+| ----------- | ------------- | ---------------------------------------------------- |
+| Dimensi     | `dim_date`    | Menyimpan atribut tanggal (tahun, bulan, hari, dsb.) |
+| Dimensi     | `dim_payment` | Menyimpan tipe pembayaran                            |
+| Fakta       | `fact_sales`  | Menyimpan transaksi penjualan (mengacu ke dimensi)   |
 
 ---
 
-### 📊 Hasil Analisis
+## 📜 Skema DWH (Star Schema)
 
-#### Total Penjualan per Metode Pembayaran
+![ERD Data Warehouse](erd_dwh.png)
+
+> Dibuat menggunakan [dbdiagram.io](https://dbdiagram.io)
+
+---
+
+## 🧩 Langkah ETL ke DWH
+
+1. **Extract** – Ambil data dari tabel hasil ETL: `data_penjualan_online`
+2. **Transform** – Ambil kolom relevan (tanggal, tipe pembayaran, nilai transaksi)
+3. **Load** – Masukkan data ke tabel dimensi dan tabel fakta:
+
+   * `dim_date`
+   * `dim_payment`
+   * `fact_sales`
+
+---
+
+## 📊 Contoh Query Analitik
+
+### 🔹 Total Penjualan per Bulan
+
 ```sql
-SELECT payment_type, ROUND(SUM(total_nilai), 2) AS total_penjualan
-FROM data_penjualan_online
-GROUP BY payment_type;
+SELECT d.year, d.month, SUM(f.total_value) AS total_penjualan
+FROM fact_sales f
+JOIN dim_date d ON f.date_id = d.date_id
+GROUP BY d.year, d.month
+ORDER BY d.year, d.month;
+```
+
+### 🔹 Total Penjualan per Metode Pembayaran
+
+```sql
+SELECT p.payment_type, SUM(f.total_value) AS total_penjualan
+FROM fact_sales f
+JOIN dim_payment p ON f.payment_id = p.payment_id
+GROUP BY p.payment_type
+ORDER BY total_penjualan DESC;
+```
+
+---
+
+## 📸 Screenshot Hasil Query
+
+|               Total Penjualan per Bulan               |     Total Penjualan per Metode Pembayaran     |
+| :---------------------------------------------------: | :-------------------------------------------: |
+| ![Total per Bulan](query_results_total_per_bulan.png) | ![Per Payment](query_results_per_payment.png) |
+
+---
+
+## 🧾 Checklist Deliverable
+
+* [x] `create_dwh_schema.sql` — Script SQL pembuatan Star Schema
+* [x] `load_dwh.py` — Otomatisasi populate dimensi & fakta
+* [x] `erd_dwh.png` — Diagram ERD Data Warehouse
+* [x] `query_results_total_per_bulan.png` — Screenshot hasil query
+* [x] `README.md` — Dokumentasi lengkap
+* [ ] (Opsional) `export_sample_data.sql` — Contoh data hasil ETL
+
+---
+
+## 🧠 Insight & Pembelajaran
+
+* Penerapan konsep **Dimensional Modeling (Star Schema)**.
+* Membangun koneksi antar tabel (Foreign Key) untuk analitik.
+* Melakukan query agregasi lintas dimensi (waktu & metode pembayaran).
+* Otomatisasi proses loading data menggunakan **SQLAlchemy**.
+
+---
+
+## 📦 Dataset
+
+Dataset: [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+
+---
+
+## 👤 Author
+
+**Ilyas Yanuar**
+📧 ilyasyanuar2@gmail.com
+🎯 *Calon Data Engineer – membangun end-to-end pipeline dari ETL hingga Data Warehouse.*
+
 ````
 
-| payment_type | total_penjualan |
-| ------------ | --------------: |
-| credit_card  |     42392000.55 |
-| boleto       |     18102430.23 |
-| debit_card   |      2200430.00 |
-| voucher      |       104000.00 |
-
 ---
-
-### 📸 Screenshot
-
-1. Terminal output ETL sukses
-   ![terminal output](https://github.com/user-attachments/assets/89b22331-d372-4b8a-8ec9-6110d068a98c)
-
-2. Tampilan tabel `data_penjualan_online` di PostgreSQL
-   ![Tabel penjualan online](https://github.com/user-attachments/assets/ed74d0f9-c82f-4dc6-9ab6-368bb689a45a)
-
-3. Hasil query SQL (grafik atau tabel)
-   ![Penjualan metode pembayaran](https://github.com/user-attachments/assets/948df5bc-277f-4af6-8871-394b35c06c49)
-   ![Transaksi perbulan](https://github.com/user-attachments/assets/9c74242d-3fa4-4aab-b692-1ba4c5f0ccba)
-
-
----
-
-### 📦 Dataset
-
-Dataset asli: [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
-
----
-
-### 👤 Author
-
-Dibuat oleh **[Ilyas Yanuar]** – Calon Data Engineer
-Menunjukkan kemampuan **data ingestion**, **data cleaning**, dan **database loading** menggunakan Python dan PostgreSQL.
-
-```
