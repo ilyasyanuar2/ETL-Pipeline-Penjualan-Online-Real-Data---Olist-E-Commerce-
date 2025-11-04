@@ -1,154 +1,213 @@
-Perfect 👏 — kamu sudah mikir seperti seorang **Data Engineer profesional** yang mau bikin project-nya enak dilihat oleh HR dan recruiter.
-
-Aku bantu kamu bikin **README.md yang rapi, profesional, dan menarik untuk GitHub**, dengan struktur yang ideal untuk **Project 2 (Data Warehouse / Star Schema)**.
-Template ini bisa kamu **copy langsung ke README.md** repo kamu.
-
----
-
-## 🧾 Contoh README.md (Final Template — Project 2)
-
-````markdown
-# 🏗️ Data Warehouse (Star Schema) – Penjualan Online (Olist E-Commerce)
-
-🔗 **Kelanjutan dari:**  
-[ETL Pipeline Penjualan Online (Project 1)](https://github.com/ilyasyanuar2/ETL-Pipeline-Penjualan-Online-Real-Data---Olist-E-Commerce-)
-
----
+```markdown
+# 🧩 ETL Pipeline Penjualan Online (Real Data - Olist E-Commerce)
 
 ## 🎯 Tujuan
-Membangun **Data Warehouse (DWH)** berbasis **Star Schema** untuk menganalisis data hasil ETL dari e-commerce Olist (Brazil).  
-Tujuan utama:
-- Mendesain model dimensi dan fakta.
-- Mengisi tabel DWH dari hasil ETL (`data_penjualan_online`).
-- Melakukan query analitik untuk insight bisnis.
+Membangun **pipeline ETL (Extract, Transform, Load)** yang mengambil data transaksi e-commerce **nyata** dari dataset Olist (Kaggle), membersihkan data menggunakan **Python (Pandas)**, lalu memuatnya ke **PostgreSQL** untuk dilakukan analisis SQL sederhana.
 
 ---
 
-## 🧱 Arsitektur Data Pipeline
+## 🧱 Arsitektur Pipeline
 
-```text
-CSV (raw data dari Kaggle)
-      │
-      ▼
-[Project 1: ETL Pipeline - Python + PostgreSQL]
-      │
-      ▼
-data_penjualan_online (clean table)
-      │
-      ▼
-[Project 2: Data Warehouse - Star Schema]
-      ├── dim_date
-      ├── dim_payment
-      └── fact_sales
-````
+```
+
+CSV (orders, payments, items)
+│
+▼
+[Python + Pandas]
+│
+Cleaning & Join
+│
+▼
+[PostgreSQL Database]
+│
+▼
+[SQL Analysis]
+
+```
 
 ---
 
 ## ⚙️ Tools & Teknologi
 
-* **PostgreSQL** – Database untuk Data Warehouse
-* **SQL** – Pembuatan tabel & query analitik
-* **Python + SQLAlchemy** – Otomatisasi proses loading DWH
-* **dbdiagram.io** – Membuat diagram ERD
+| Komponen | Deskripsi |
+|-----------|------------|
+| **Python** | Bahasa utama untuk ETL |
+| **Pandas** | Manipulasi dan transformasi data |
+| **SQLAlchemy** | Koneksi dan komunikasi ke PostgreSQL |
+| **PostgreSQL** | Database untuk menyimpan hasil ETL |
+| **psycopg2** | Driver PostgreSQL untuk Python |
 
 ---
 
-## 🗂️ Struktur Database
+## 📂 Struktur Folder
 
-Tabel utama:
-
-| Jenis Tabel | Nama Tabel    | Deskripsi                                            |
-| ----------- | ------------- | ---------------------------------------------------- |
-| Dimensi     | `dim_date`    | Menyimpan atribut tanggal (tahun, bulan, hari, dsb.) |
-| Dimensi     | `dim_payment` | Menyimpan tipe pembayaran                            |
-| Fakta       | `fact_sales`  | Menyimpan transaksi penjualan (mengacu ke dimensi)   |
-
----
-
-## 📜 Skema DWH (Star Schema)
-
-![ERD Data Warehouse](erd_dwh.png)
-
-> Dibuat menggunakan [dbdiagram.io](https://dbdiagram.io)
-
----
-
-## 🧩 Langkah ETL ke DWH
-
-1. **Extract** – Ambil data dari tabel hasil ETL: `data_penjualan_online`
-2. **Transform** – Ambil kolom relevan (tanggal, tipe pembayaran, nilai transaksi)
-3. **Load** – Masukkan data ke tabel dimensi dan tabel fakta:
-
-   * `dim_date`
-   * `dim_payment`
-   * `fact_sales`
-
----
-
-## 📊 Contoh Query Analitik
-
-### 🔹 Total Penjualan per Bulan
-
-```sql
-SELECT d.year, d.month, SUM(f.total_value) AS total_penjualan
-FROM fact_sales f
-JOIN dim_date d ON f.date_id = d.date_id
-GROUP BY d.year, d.month
-ORDER BY d.year, d.month;
 ```
 
-### 🔹 Total Penjualan per Metode Pembayaran
+etl-pipeline-penjualan/
+│
+├── data/
+│   ├── olist_orders_dataset.csv
+│   ├── olist_order_payments_dataset.csv
+│   ├── olist_order_items_dataset.csv
+│
+├── etl_pipeline.py
+├── requirements.txt
+└── README.md
+
+````
+
+---
+
+## 🧩 Langkah ETL
+
+### 1️⃣ Extract  
+Menarik data dari tiga file CSV:
+- `olist_orders_dataset.csv`
+- `olist_order_payments_dataset.csv`
+- `olist_order_items_dataset.csv`
+
+### 2️⃣ Transform  
+- Menggabungkan data berdasarkan `order_id`
+- Menghapus duplikat dan nilai kosong
+- Mengonversi kolom tanggal ke format datetime
+- Menghitung kolom baru `total_nilai` = `payment_value` + `freight_value`
+
+### 3️⃣ Load  
+Menyimpan data hasil transformasi ke **tabel PostgreSQL** bernama `data_penjualan_online`.
+
+---
+
+## 💻 Kode Utama (`etl_pipeline.py`)
+
+```python
+import pandas as pd
+from sqlalchemy import create_engine
+
+# --------------------------
+# 1️⃣ EXTRACT
+# --------------------------
+orders = pd.read_csv("data/olist_orders_dataset.csv")
+payments = pd.read_csv("data/olist_order_payments_dataset.csv")
+items = pd.read_csv("data/olist_order_items_dataset.csv")
+
+# --------------------------
+# 2️⃣ TRANSFORM
+# --------------------------
+df = orders.merge(payments, on="order_id", how="left")
+df = df.merge(items, on="order_id", how="left")
+
+df.dropna(subset=["payment_value", "price"], inplace=True)
+df.drop_duplicates(inplace=True)
+
+df["order_purchase_timestamp"] = pd.to_datetime(df["order_purchase_timestamp"])
+df["total_nilai"] = df["payment_value"] + df["freight_value"]
+
+final_df = df[[
+    "order_id",
+    "order_purchase_timestamp",
+    "payment_type",
+    "price",
+    "freight_value",
+    "total_nilai"
+]]
+
+# --------------------------
+# 3️⃣ LOAD
+# --------------------------
+engine = create_engine("postgresql+psycopg2://postgres:password@localhost:5432/penjualan_db")
+final_df.to_sql("data_penjualan_online", engine, if_exists="replace", index=False)
+
+print("✅ ETL Pipeline selesai! Data berhasil dimuat ke PostgreSQL.")
+````
+
+---
+
+## 🧠 SQL Query Analisis
+
+### 1. Total Penjualan Berdasarkan Metode Pembayaran
 
 ```sql
-SELECT p.payment_type, SUM(f.total_value) AS total_penjualan
-FROM fact_sales f
-JOIN dim_payment p ON f.payment_id = p.payment_id
-GROUP BY p.payment_type
+SELECT payment_type, ROUND(SUM(total_nilai), 2) AS total_penjualan
+FROM data_penjualan_online
+GROUP BY payment_type
 ORDER BY total_penjualan DESC;
 ```
 
----
+### 2. Jumlah Transaksi per Bulan
 
-## 📸 Screenshot Hasil Query
-
-|               Total Penjualan per Bulan               |     Total Penjualan per Metode Pembayaran     |
-| :---------------------------------------------------: | :-------------------------------------------: |
-| ![Total per Bulan](query_results_total_per_bulan.png) | ![Per Payment](query_results_per_payment.png) |
-
----
-
-## 🧾 Checklist Deliverable
-
-* [x] `create_dwh_schema.sql` — Script SQL pembuatan Star Schema
-* [x] `load_dwh.py` — Otomatisasi populate dimensi & fakta
-* [x] `erd_dwh.png` — Diagram ERD Data Warehouse
-* [x] `query_results_total_per_bulan.png` — Screenshot hasil query
-* [x] `README.md` — Dokumentasi lengkap
-* [ ] (Opsional) `export_sample_data.sql` — Contoh data hasil ETL
+```sql
+SELECT DATE_TRUNC('month', order_purchase_timestamp) AS bulan,
+       COUNT(order_id) AS jumlah_transaksi
+FROM data_penjualan_online
+GROUP BY bulan
+ORDER BY bulan;
+```
 
 ---
 
-## 🧠 Insight & Pembelajaran
+## 📊 Contoh Hasil Query
 
-* Penerapan konsep **Dimensional Modeling (Star Schema)**.
-* Membangun koneksi antar tabel (Foreign Key) untuk analitik.
-* Melakukan query agregasi lintas dimensi (waktu & metode pembayaran).
-* Otomatisasi proses loading data menggunakan **SQLAlchemy**.
+| payment_type | total_penjualan |
+| ------------ | --------------: |
+| credit_card  |   42,392,000.55 |
+| boleto       |   18,102,430.23 |
+| debit_card   |    2,200,430.00 |
+| voucher      |      104,000.00 |
+
+---
+
+## 📸 Screenshot yang Disarankan
+
+1. ✅ Terminal output ETL sukses
+2. 🗄️ Tampilan tabel `data_penjualan_online` di PostgreSQL
+3. 📊 Hasil query SQL di pgAdmin atau DBeaver
 
 ---
 
 ## 📦 Dataset
 
-Dataset: [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+Dataset asli:
+👉 [Brazilian E-Commerce Public Dataset by Olist (Kaggle)](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+
+---
+
+## 🧰 Cara Menjalankan Project
+
+### 1. Clone repository
+
+```bash
+git clone https://github.com/<username-kamu>/etl-pipeline-penjualan.git
+cd etl-pipeline-penjualan
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Buat database di PostgreSQL
+
+```sql
+CREATE DATABASE penjualan_db;
+```
+
+### 4. Jalankan script ETL
+
+```bash
+python etl_pipeline.py
+```
 
 ---
 
 ## 👤 Author
 
-**Ilyas Yanuar**
-📧 ilyasyanuar2@gmail.com
-🎯 *Calon Data Engineer – membangun end-to-end pipeline dari ETL hingga Data Warehouse.*
+Dibuat oleh **[Ilyas Yanuar]**
+💼 Calon **Data Engineer** yang menunjukkan kemampuan dalam:
 
-````
+* Data ingestion
+* Data cleaning
+* Data loading ke database relasional
+* Analisis data dengan SQL
 
 ---
