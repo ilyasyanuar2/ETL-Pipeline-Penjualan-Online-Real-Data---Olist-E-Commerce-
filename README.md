@@ -11,16 +11,27 @@ Membangun **pipeline ETL (Extract, Transform, Load)** yang mengambil data transa
 ```
 
 CSV (orders, payments, items)
+
 │
+
 ▼
+
 [Python + Pandas]
+
 │
+
 Cleaning & Join
+
 │
+
 ▼
+
 [PostgreSQL Database]
+
 │
+
 ▼
+
 [SQL Analysis]
 
 ```
@@ -29,13 +40,13 @@ Cleaning & Join
 
 ## ⚙️ Tools & Teknologi
 
-| Komponen | Deskripsi |
-|-----------|------------|
-| **Python** | Bahasa utama untuk ETL |
-| **Pandas** | Manipulasi dan transformasi data |
-| **SQLAlchemy** | Koneksi dan komunikasi ke PostgreSQL |
-| **PostgreSQL** | Database untuk menyimpan hasil ETL |
-| **psycopg2** | Driver PostgreSQL untuk Python |
+| Komponen    | Deskripsi                                   |
+|-------------|---------------------------------------------|
+| **Python**  | Bahasa utama untuk ETL                      |
+| **Pandas**  | Manipulasi dan transformasi data            |
+| **SQLAlchemy** | Koneksi dan komunikasi ke PostgreSQL     |
+| **PostgreSQL** | Database untuk menyimpan hasil ETL       |
+| **psycopg2** | Driver PostgreSQL untuk Python             |
 
 ---
 
@@ -44,14 +55,23 @@ Cleaning & Join
 ```
 
 etl-pipeline-penjualan/
+
 │
+
 ├── data/
+
 │   ├── olist_orders_dataset.csv
+
 │   ├── olist_order_payments_dataset.csv
-│   ├── olist_order_items_dataset.csv
+
+│   └── olist_order_items_dataset.csv
+
 │
+
 ├── etl_pipeline.py
+
 ├── requirements.txt
+
 └── README.md
 
 ````
@@ -145,22 +165,21 @@ ORDER BY bulan;
 
 ---
 
-## 📊 Contoh Hasil Query
+## 📸 Screenshot
 
-| payment_type | total_penjualan |
-| ------------ | --------------: |
-| credit_card  |   42,392,000.55 |
-| boleto       |   18,102,430.23 |
-| debit_card   |    2,200,430.00 |
-| voucher      |      104,000.00 |
+   🗄️ Tampilan tabel `data_penjualan_online` di PostgreSQL
+   ![Tabel penjualan online](https://github.com/user-attachments/assets/edfab9fd-8cb0-4946-a8e4-687a46815ed5)
 
----
+   📊 Hasil query SQL di pgAdmin
+   ![Penjualan metode pembayaran](https://github.com/user-attachments/assets/f96c3de0-cfad-4ac0-8787-a90077b1fbea)
+   ![Transaksi perbulan](https://github.com/user-attachments/assets/9b65a1ac-1665-4caf-8e4a-8e21040970bf)
 
-## 📸 Screenshot yang Disarankan
+   ✅ Terminal output ETL sukses
+   
+   ![terminal output](https://github.com/user-attachments/assets/051f027e-4385-4b8b-9a91-152a57a7b19d)
 
-1. ✅ Terminal output ETL sukses
-2. 🗄️ Tampilan tabel `data_penjualan_online` di PostgreSQL
-3. 📊 Hasil query SQL di pgAdmin atau DBeaver
+
+
 
 ---
 
@@ -202,7 +221,7 @@ python etl_pipeline.py
 
 ## 👤 Author
 
-Dibuat oleh **[Ilyas Yanuar]**
+Dibuat oleh **Ilyas Yanuar**
 💼 Calon **Data Engineer** yang menunjukkan kemampuan dalam:
 
 * Data ingestion
