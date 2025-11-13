@@ -195,7 +195,7 @@ Dataset asli:
 ### 1. Clone repository
 
 ```bash
-git clone https://github.com/<username-kamu>/etl-pipeline-penjualan.git
+git clone https://github.com/ilyasyanuar2/etl-pipeline-penjualan.git
 cd etl-pipeline-penjualan
 ```
 
@@ -222,7 +222,7 @@ python etl_pipeline.py
 ## 👤 Author
 
 Dibuat oleh **Ilyas Yanuar**
-💼 Calon **Data Engineer** yang menunjukkan kemampuan dalam:
+💼 Calon **Data Engineer**
 
 * Data ingestion
 * Data cleaning
